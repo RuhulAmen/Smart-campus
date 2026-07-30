@@ -1,0 +1,167 @@
+from flask import Blueprint, request, jsonify
+from models import Facility
+from utils.helpers import token_required, admin_required
+
+facilities_bp = Blueprint('facilities', __name__)
+
+@facilities_bp.route('/', methods=['GET'])
+def get_facilities():
+    """Get all facilities"""
+    try:
+        facility_model = Facility(facilities_bp.mongo)
+        facilities = facility_model.get_all_facilities()
+        
+        # Convert ObjectId to string
+        for facility in facilities:
+            facility['_id'] = str(facility['_id'])
+        
+        return jsonify({'facilities': facilities}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@facilities_bp.route('/<facility_id>', methods=['GET'])
+def get_facility(facility_id):
+    """Get a specific facility"""
+    try:
+        facility_model = Facility(facilities_bp.mongo)
+        facility = facility_model.get_facility_by_id(facility_id)
+        
+        if not facility:
+            return jsonify({'error': 'Facility not found'}), 404
+        
+        facility['_id'] = str(facility['_id'])
+        return jsonify({'facility': facility}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@facilities_bp.route('/', methods=['POST'])
+@token_required
+@admin_required
+def create_facility(current_user):
+    """Create a new facility (Admin only)"""
+    try:
+        data = request.get_json()
+        
+        required_fields = ['name', 'location', 'description']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        facility_model = Facility(facilities_bp.mongo)
+        facility_id = facility_model.create_facility(
+            name=data['name'],
+            location=data['location'],
+            description=data['description'],
+            status=data.get('status', 'operational')
+        )
+        
+        facility = facility_model.get_facility_by_id(facility_id)
+        facility['_id'] = str(facility['_id'])
+        
+        return jsonify({
+            'message': 'Facility created successfully',
+            'facility': facility
+        }), 201
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@facilities_bp.route('/<facility_id>', methods=['PUT'])
+@token_required
+@admin_required
+def update_facility(current_user, facility_id):
+    """Update facility (Admin only)"""
+    try:
+        data = request.get_json()
+        facility_model = Facility(facilities_bp.mongo)
+        
+        # Check if facility exists
+        facility = facility_model.get_facility_by_id(facility_id)
+        if not facility:
+            return jsonify({'error': 'Facility not found'}), 404
+        
+        # Update facility
+        update_data = {}
+        allowed_fields = ['name', 'location', 'description', 'status']
+        
+        for field in allowed_fields:
+            if field in data:
+                update_data[field] = data[field]
+        
+        if update_data:
+            facility_model.update_facility(facility_id, update_data)
+        
+        # Get updated facility
+        updated_facility = facility_model.get_facility_by_id(facility_id)
+        updated_facility['_id'] = str(updated_facility['_id'])
+        
+        return jsonify({
+            'message': 'Facility updated successfully',
+            'facility': updated_facility
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@facilities_bp.route('/<facility_id>/status', methods=['PATCH'])
+@token_required
+@admin_required
+def update_facility_status(current_user, facility_id):
+    """Update facility status (Admin only)"""
+    try:
+        data = request.get_json()
+        
+        if not data.get('status'):
+            return jsonify({'error': 'Status is required'}), 400
+        
+        facility_model = Facility(facilities_bp.mongo)
+        
+        # Check if facility exists
+        facility = facility_model.get_facility_by_id(facility_id)
+        if not facility:
+            return jsonify({'error': 'Facility not found'}), 404
+        
+        # Update status
+        facility_model.update_status(facility_id, data['status'])
+        
+        return jsonify({
+            'message': 'Facility status updated successfully',
+            'status': data['status']
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@facilities_bp.route('/<facility_id>', methods=['DELETE'])
+@token_required
+@admin_required
+def delete_facility(current_user, facility_id):
+    """Delete facility (Admin only)"""
+    try:
+        facility_model = Facility(facilities_bp.mongo)
+        
+        # Check if facility exists
+        facility = facility_model.get_facility_by_id(facility_id)
+        if not facility:
+            return jsonify({'error': 'Facility not found'}), 404
+        
+        facility_model.delete_facility(facility_id)
+        
+        return jsonify({'message': 'Facility deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@facilities_bp.route('/initialize', methods=['POST'])
+@token_required
+@admin_required
+def initialize_facilities(current_user):
+    """Initialize default facilities (Admin only)"""
+    try:
+        facility_model = Facility(facilities_bp.mongo)
+        result = facility_model.initialize_default_facilities()
+        
+        if result:
+            return jsonify({'message': 'Default facilities initialized'}), 201
+        else:
+            return jsonify({'message': 'Facilities already exist'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

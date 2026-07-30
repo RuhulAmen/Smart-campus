@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Utility and Maintenance Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <h2>Smart Campus</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="facilities.html">Facilities</a></li>
+                <li><a href="announcements.html">Announcements</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+
+        <section class="hero">
+            <h1>Smart Campus Utility and Maintenance Management System</h1>
+            <p>
+                A centralized platform that helps students check the status of campus
+                facilities, report issues, and stay informed through announcements.
+            </p>
+            <a href="signup.html" class="btn-primary">Get Started</a>
+            <a href="#why" class="btn-secondary">Learn More</a>
+        </section>
+
+        <section class="why-section" id="why">
+            <h2>Why Use Smart Campus?</h2>
+            <ul>
+                <li>View real-time facility status</li>
+                <li>Report maintenance issues</li>
+                <li>Receive important announcements</li>
+                <li>Improve communication between students and administrators</li>
+            </ul>
+        </section>
+
+        <section class="facilities-section" id="facilities">
+            <h2>Campus Facilities</h2>
+            <ul class="facilities-list" id="facilitiesList">
+                <li>Loading facilities...</li>
+            </ul>
+        </section>
+
+    </main>
+    <footer>
+        <p>© 2026 Smart Campus Utility and Maintenance Management System. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Update navigation
+            updateNavigation();
+
+            // Load facilities
+            try {
+                const facilities = await getFacilities();
+                const facilitiesList = document.getElementById('facilitiesList');
+
+                if (facilities && facilities.length > 0) {
+                    facilitiesList.innerHTML = facilities.map(f =>
+                        `<li>${f.name}</li>`
+                    ).join('');
+                } else {
+                    facilitiesList.innerHTML = '<li>No facilities available</li>';
+                }
+            } catch (error) {
+                console.error('Error loading facilities:', error);
+                document.getElementById('facilitiesList').innerHTML = '<li>Error loading facilities</li>';
+            }
+        });
+    </script>
+</body>
+
+</html>

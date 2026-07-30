@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facilities - Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <h2>Smart Campus</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="facilities.html" class="active">Facilities</a></li>
+                <li><a href="announcements.html">Announcements</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1>🏫 Campus Facilities</h1>
+            <p>Check the real-time status of all campus facilities</p>
+        </div>
+
+        <div class="facility-detail-grid" id="facilitiesContainer">
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+                Loading facilities...
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Smart Campus Utility and Maintenance Management System. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            updateNavigation();
+            await loadFacilities();
+        });
+
+        async function loadFacilities() {
+            const container = document.getElementById('facilitiesContainer');
+
+            try {
+                const facilities = await getFacilities();
+
+                if (!facilities || facilities.length === 0) {
+                    container.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+                            <span style="font-size: 3rem; display: block; margin-bottom: 16px;">🏗️</span>
+                            <h3 style="color: var(--text-main);">No facilities available</h3>
+                            <p>Check back later for updates</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = facilities.map(f => {
+                    const statusClass = `status-badge-${f.status}`;
+                    const statusLabel = f.status.charAt(0).toUpperCase() + f.status.slice(1);
+
+                    let statusMessage = '';
+                    switch (f.status) {
+                        case 'operational':
+                            statusMessage = '✅ Currently operational and available';
+                            break;
+                        case 'maintenance':
+                            statusMessage = '🔧 Under maintenance - Please check back later';
+                            break;
+                        case 'closed':
+                            statusMessage = '❌ Currently closed';
+                            break;
+                        default:
+                            statusMessage = 'Status unknown';
+                    }
+
+                    return `
+                        <div class="facility-detail-card">
+                            <div class="facility-detail-top">
+                                <h3>${f.name}</h3>
+                                <span class="status-badge ${statusClass}">${statusLabel}</span>
+                            </div>
+                            <div class="facility-location">📍 ${f.location || 'Location not specified'}</div>
+                            <p>${statusMessage}</p>
+                            ${f.description ? `<p style="font-size: 0.85rem; color: var(--text-muted);">${f.description}</p>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading facilities:', error);
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+                        <span style="font-size: 3rem; display: block; margin-bottom: 16px;">⚠️</span>
+                        <h3 style="color: var(--text-main);">Error loading facilities</h3>
+                        <p>Please try again later</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+
+</html>

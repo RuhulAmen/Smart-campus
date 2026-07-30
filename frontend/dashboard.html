@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <h2>Smart Campus</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="facilities.html">Facilities</a></li>
+                <li><a href="announcements.html">Announcements</a></li>
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="welcome-section">
+            <h1>👋 Welcome, <span id="userName">Student</span>!</h1>
+            <p>Here's what's happening on campus</p>
+        </div>
+
+        <div class="stats-section" id="statsContainer">
+            <div class="stat-card">
+                <span class="stat-number status-operational" id="totalFacilities">0</span>
+                <span class="stat-label">Total Facilities</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number status-operational" id="operationalFacilities">0</span>
+                <span class="stat-label">Operational</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number status-maintenance" id="maintenanceFacilities">0</span>
+                <span class="stat-label">Under Maintenance</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number status-closed" id="reportedIssues">0</span>
+                <span class="stat-label">Issues Reported</span>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <a href="facilities.html" class="action-card">
+                <h3>🏢 View Facilities</h3>
+                <p>Check status of campus facilities</p>
+            </a>
+            <a href="announcements.html" class="action-card">
+                <h3>📢 Announcements</h3>
+                <p>Read latest campus updates</p>
+            </a>
+            <a href="report-issue.html" class="action-card">
+                <h3>⚠️ Report Issue</h3>
+                <p>Report maintenance problems</p>
+            </a>
+        </div>
+
+        <div class="recent-announcements">
+            <h2>📰 Recent Announcements</h2>
+            <ul class="announce-list" id="recentAnnouncements">
+                <li style="color: var(--text-muted); padding: 16px;">Loading announcements...</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Smart Campus Utility and Maintenance Management System. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Update navigation
+            updateNavigation();
+
+            // Check authentication
+            if (!isLoggedIn()) {
+                showToast('Please login to access dashboard', 'error');
+                setTimeout(() => window.location.href = 'login.html', 1000);
+                return;
+            }
+
+            // Get user
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.full_name.split(' ')[0];
+            }
+
+            // Load dashboard stats
+            try {
+                const stats = await getDashboardStats();
+                if (stats) {
+                    document.getElementById('totalFacilities').textContent = stats.total_facilities || 0;
+                    document.getElementById('operationalFacilities').textContent = stats.operational_facilities || 0;
+                    document.getElementById('maintenanceFacilities').textContent = stats.maintenance_facilities || 0;
+                    document.getElementById('reportedIssues').textContent = stats.total_issues || 0;
+
+                    // Load recent announcements
+                    const announcements = stats.recent_announcements || [];
+                    const container = document.getElementById('recentAnnouncements');
+
+                    if (announcements.length === 0) {
+                        container.innerHTML = '<li style="color: var(--text-muted); padding: 16px;">No recent announcements</li>';
+                    } else {
+                        container.innerHTML = announcements.map(ann => `
+                            <li>
+                                <div class="announce-title">${ann.title}</div>
+                                <div class="announce-date">📅 ${new Date(ann.date).toLocaleDateString()} • ${ann.category}</div>
+                            </li>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                showToast('Error loading dashboard data', 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

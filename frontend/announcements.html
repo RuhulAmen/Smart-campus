@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements - Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <h2>Smart Campus</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="facilities.html">Facilities</a></li>
+                <li><a href="announcements.html" class="active">Announcements</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="announcements-header">
+            <h1>📢 Campus Announcements</h1>
+            <p>Stay updated with the latest campus news and maintenance updates</p>
+        </div>
+
+        <div class="filter-section">
+            <select id="filterPriority">
+                <option value="all">All Priorities</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+            </select>
+            <input type="text" id="searchAnnouncements" placeholder="Search announcements...">
+            <button onclick="refreshAnnouncements()" style="
+                background-color: var(--accent);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 10px 20px;
+                cursor: pointer;
+            ">🔄 Refresh</button>
+        </div>
+
+        <div class="announcements-grid" id="announcementsContainer">
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+                Loading announcements...
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Smart Campus Utility and Maintenance Management System. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        let allAnnouncements = [];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            updateNavigation();
+            loadAnnouncements();
+
+            document.getElementById('filterPriority').addEventListener('change', filterAndSearch);
+            document.getElementById('searchAnnouncements').addEventListener('input', filterAndSearch);
+        });
+
+        async function loadAnnouncements() {
+            const container = document.getElementById('announcementsContainer');
+
+            try {
+                allAnnouncements = await getAnnouncements();
+                renderAnnouncements(allAnnouncements);
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+                        <span style="font-size: 3rem; display: block; margin-bottom: 16px;">⚠️</span>
+                        <h3 style="color: var(--text-main);">Error loading announcements</h3>
+                        <p>Please try again later</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderAnnouncements(announcements) {
+            const container = document.getElementById('announcementsContainer');
+
+            if (!announcements || announcements.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+                        <span style="font-size: 3rem; display: block; margin-bottom: 16px;">📭</span>
+                        <h3 style="color: var(--text-main);">No announcements found</h3>
+                        <p>Check back later for updates</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = announcements.map(ann => {
+                const priorityClass = `priority-${ann.priority}`;
+                const badgeClass = `priority-badge-${ann.priority}`;
+                const date = new Date(ann.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                return `
+                    <div class="announcement-card ${priorityClass}">
+                        <div class="card-header">
+                            <h3>${ann.title}</h3>
+                            <span class="priority-badge ${badgeClass}">${ann.priority.toUpperCase()}</span>
+                        </div>
+                        <p class="card-description">${ann.description}</p>
+                        <div class="card-footer">
+                            <span class="date">📅 ${date}</span>
+                            <span class="category">${ann.category || 'General'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterAndSearch() {
+            const priority = document.getElementById('filterPriority').value;
+            const search = document.getElementById('searchAnnouncements').value.toLowerCase();
+
+            let filtered = allAnnouncements;
+
+            if (priority !== 'all') {
+                filtered = filtered.filter(ann => ann.priority === priority);
+            }
+
+            if (search) {
+                filtered = filtered.filter(ann =>
+                    ann.title.toLowerCase().includes(search) ||
+                    ann.description.toLowerCase().includes(search) ||
+                    (ann.category && ann.category.toLowerCase().includes(search))
+                );
+            }
+
+            renderAnnouncements(filtered);
+        }
+
+        async function refreshAnnouncements() {
+            const btn = document.querySelector('[onclick="refreshAnnouncements()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Loading...';
+            btn.disabled = true;
+
+            await loadAnnouncements();
+            showToast('Announcements refreshed!', 'success');
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    </script>
+</body>
+
+</html>

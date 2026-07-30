@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Issue - Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <h2>Smart Campus</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="facilities.html">Facilities</a></li>
+                <li><a href="announcements.html">Announcements</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="signup.html">Sign Up</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="report-section">
+            <h1>⚠️ Report an Issue</h1>
+            <p>Help us improve campus facilities by reporting any issues you encounter</p>
+
+            <form class="report-form" id="reportForm">
+                <label for="facility">Facility *</label>
+                <select id="facility" required>
+                    <option value="">Select a facility</option>
+                    <option value="Washrooms">Washrooms</option>
+                    <option value="Water Coolers">Water Coolers</option>
+                    <option value="Water Tanks">Water Tanks</option>
+                    <option value="Library">Library</option>
+                    <option value="Medical Room">Medical Room</option>
+                    <option value="Xerox Center">Xerox Center</option>
+                    <option value="Cafeteria">Cafeteria</option>
+                </select>
+
+                <label for="title">Issue Title *</label>
+                <input type="text" id="title" placeholder="Brief title of the issue" required>
+
+                <label for="description">Description *</label>
+                <textarea id="description" placeholder="Describe the issue in detail" required></textarea>
+
+                <div class="form-row">
+                    <div>
+                        <label for="reporter_name">Your Name *</label>
+                        <input type="text" id="reporter_name" placeholder="Your name" required>
+                    </div>
+                    <div>
+                        <label for="reporter_email">Email *</label>
+                        <input type="email" id="reporter_email" placeholder="your@email.com" required>
+                    </div>
+                </div>
+
+                <button type="submit">📤 Submit Report</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Smart Campus Utility and Maintenance Management System. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            updateNavigation();
+
+            const form = document.getElementById('reportForm');
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Get form data
+                const facility = document.getElementById('facility').value;
+                const title = document.getElementById('title').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const reporter_name = document.getElementById('reporter_name').value.trim();
+                const reporter_email = document.getElementById('reporter_email').value.trim();
+
+                // Validate
+                if (!facility || !title || !description || !reporter_name || !reporter_email) {
+                    showToast('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                if (!validateEmail(reporter_email)) {
+                    showToast('Please enter a valid email address', 'error');
+                    return;
+                }
+
+                // Show loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Submitting...';
+                submitBtn.disabled = true;
+
+                try {
+                    const result = await reportIssue({
+                        facility,
+                        title,
+                        description,
+                        reporter_name,
+                        reporter_email
+                    });
+
+                    if (result) {
+                        form.reset();
+                        showToast('✅ Issue reported successfully!', 'success');
+                    }
+                } catch (error) {
+                    showToast(error.message || 'Failed to report issue. Please try again.', 'error');
+                } finally {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1072 @@
+/* ============================================
+   0. VARIABLES
+   CSS variables let you define a color or value ONCE
+   and reuse it everywhere with var(--name). Change the
+   value here and it updates across the whole site —
+   no need to hunt through every rule.
+   ============================================ */
+:root {
+    --dark: #0d1117;
+    /* navbar + footer background (now near-black) */
+    --accent: #6d8bff;
+    /* buttons, links, highlights — brightened slightly
+       so it still stands out against dark backgrounds */
+    --accent-hover: #8ca0ff;
+    --bg-light: #161b22;
+    /* "light" sections are now a slightly raised dark panel,
+       not actually light — name stays the same so we don't
+       have to rename it everywhere else in the file */
+    --text-main: #e6e8eb;
+    --text-muted: #9aa2b1;
+    --border: #2a313d;
+    --card-bg: #1c222b;
+    /* new: used for facility cards, which previously used
+       plain white and need their own surface color now */
+
+    --font-heading: 'Poppins', sans-serif;
+    --font-body: 'Inter', Arial, sans-serif;
+}
+
+/* ============================================
+   1. RESET
+   Browsers add their own default spacing to elements.
+   This removes it so every browser starts from the same
+   blank slate — otherwise your layout looks slightly
+   different in Chrome vs Firefox vs Edge.
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* box-sizing: border-box means padding/border are
+       INCLUDED in an element's width, instead of added
+       on top of it. Makes layout math much easier. */
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--text-main);
+    background-color: var(--dark);
+    line-height: 1.6;
+    /* line-height controls space between lines of text,
+       not just font size — 1.6 keeps paragraphs readable */
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-heading);
+    /* headings get the bolder display font, body text
+       stays on the more readable Inter font */
+}
+
+/* ============================================
+   2. HEADER / NAVIGATION
+   ============================================ */
+header {
+    background-color: var(--dark);
+    /* dark navbar background */
+    padding: 16px 40px;
+}
+
+header nav {
+    display: flex;
+    /* flex lets us put the logo and the menu
+       side-by-side instead of stacked on top of each other */
+    justify-content: space-between;
+    /* pushes logo to the left, menu to the right */
+    align-items: center;
+    /* vertically centers them so they line up */
+}
+
+header h2 {
+    color: #ffffff;
+}
+
+header nav ul {
+    display: flex;
+    /* turns the vertical list of links into a horizontal row */
+    list-style: none;
+    /* removes the bullet points */
+    gap: 28px;
+    /* spacing between each link */
+}
+
+header nav ul li a {
+    color: #ffffff;
+    text-decoration: none;
+    /* removes the underline under links */
+    font-size: 0.95rem;
+}
+
+header nav ul li a:hover {
+    color: var(--accent);
+    /* changes link color on mouse hover, for feedback */
+}
+
+/* ============================================
+   3. HERO SECTION (top intro section)
+   ============================================ */
+.hero {
+    background-color: var(--bg-light);
+    text-align: center;
+    padding: 80px 24px;
+}
+
+.hero h1 {
+    font-size: 2.4rem;
+    max-width: 800px;
+    margin: 0 auto 20px auto;
+    /* "0 auto" centers a block element horizontally */
+}
+
+.hero p {
+    max-width: 600px;
+    margin: 0 auto 32px auto;
+    color: var(--text-muted);
+    font-size: 1.05rem;
+}
+
+.btn-primary,
+.btn-secondary {
+    display: inline-block;
+    /* anchors are inline by default, which ignores
+       top/bottom padding — inline-block fixes that while
+       still letting them sit side-by-side like text */
+    font-size: 1rem;
+    padding: 12px 26px;
+    margin: 0 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    /* removes the default underline links get */
+}
+
+.btn-primary {
+    background-color: var(--accent);
+    color: #ffffff;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--border);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ============================================
+   4. WHY USE SMART CAMPUS SECTION
+   ============================================ */
+.why-section {
+    padding: 64px 24px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.why-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.why-section ul {
+    list-style: none;
+}
+
+.why-section li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1.05rem;
+}
+
+.why-section li:last-child {
+    border-bottom: none;
+    /* removes the line under the last item so it
+       doesn't look like a stray line hanging below the list */
+}
+
+/* ============================================
+   5. FACILITIES SECTION
+   ============================================ */
+.facilities-section {
+    background-color: var(--bg-light);
+    padding: 64px 24px;
+    text-align: center;
+}
+
+.facilities-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 32px;
+}
+
+.facilities-list {
+    list-style: none;
+    display: flex;
+    /* flex + flex-wrap lets the cards flow into new rows
+       automatically on smaller screens instead of overflowing */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.facilities-list li {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 28px;
+    font-size: 1rem;
+    min-width: 150px;
+    color: var(--text-main);
+}
+
+/* ============================================
+   6. FOOTER
+   ============================================ */
+footer {
+    background-color: var(--dark);
+    color: var(--text-muted);
+    text-align: center;
+    padding: 24px;
+    font-size: 0.85rem;
+}
+
+/* ============================================
+   7. FACILITIES PAGE
+   ============================================ */
+.page-header {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 48px 24px 8px;
+}
+
+.page-header h1 {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+}
+
+.page-header p {
+    color: var(--text-muted);
+}
+
+.facility-detail-grid {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 24px 64px;
+    display: grid;
+    /* auto-fill + minmax lets the grid decide how many
+       columns fit per row on its own — 3 on a wide screen,
+       2 on a tablet, 1 on mobile — with no media query needed */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.facility-detail-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.facility-detail-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.facility-detail-top h3 {
+    font-size: 1.05rem;
+}
+
+.facility-location {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.facility-detail-card p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* --- Status badges: small pill shapes with a tinted
+   background matching the status color --- */
+.status-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    /* a very large border-radius on a short element makes
+       the corners fully round, creating a "pill" shape */
+    white-space: nowrap;
+    /* stops the badge text from wrapping onto two lines */
+}
+
+.status-badge-operational {
+    background-color: rgba(61, 220, 132, 0.15);
+    color: #3ddc84;
+}
+
+.status-badge-maintenance {
+    background-color: rgba(245, 166, 35, 0.15);
+    color: #f5a623;
+}
+
+.status-badge-closed {
+    background-color: rgba(229, 72, 77, 0.15);
+    color: #e5484d;
+}
+
+/* ============================================
+   8. STUDENT DASHBOARD
+   ============================================ */
+.welcome-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 48px 24px 24px;
+}
+
+.welcome-section h1 {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+}
+
+.welcome-section p {
+    color: var(--text-muted);
+}
+
+.stats-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px 32px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    /* wraps into a new row on small screens instead of squeezing */
+}
+
+.stat-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    flex: 1;
+    /* flex: 1 makes all three cards share the row equally,
+       instead of only being as wide as their content */
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.stat-number {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Reusing the same status color names from the facility
+   grid concept, so "operational" always means the same
+   color everywhere on the site */
+.status-operational {
+    color: #3ddc84;
+}
+
+.status-maintenance {
+    color: #f5a623;
+}
+
+.status-closed {
+    color: #e5484d;
+}
+
+.quick-actions {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px 32px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.action-card {
+    flex: 1;
+    min-width: 220px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    text-decoration: none;
+    color: var(--text-main);
+    transition: border-color 0.15s ease;
+    /* transition makes the hover border change smoothly
+       instead of snapping instantly */
+}
+
+.action-card:hover {
+    border-color: var(--accent);
+}
+
+.action-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+}
+
+.action-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.recent-announcements {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px 64px;
+}
+
+.recent-announcements h2 {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+}
+
+.recent-announcements .announce-list {
+    list-style: none;
+}
+
+.recent-announcements .announce-list li {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.recent-announcements .announce-date {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.recent-announcements .announce-title {
+    font-size: 0.98rem;
+}
+
+/* ============================================
+   9. AUTH PAGES (Login / Signup)
+   ============================================ */
+.auth-section {
+    min-height: calc(100vh - 140px);
+    /* 100vh = full viewport height. We subtract roughly the
+       header + footer height so the card sits centered in
+       the space between them, not the whole screen. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+}
+
+.auth-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-card h1 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+}
+
+.auth-card>p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+}
+
+.auth-card form {
+    display: flex;
+    flex-direction: column;
+    /* stacks label, input, label, input, button vertically
+       in the order they appear in the HTML */
+    gap: 6px;
+}
+
+.auth-card label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 12px;
+}
+
+.auth-card input,
+.auth-card select {
+    background-color: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+}
+
+.auth-card input:focus,
+.auth-card select:focus {
+    outline: none;
+    border-color: var(--accent);
+    /* replaces the browser's default blue focus ring with
+       our own accent color, so it matches the theme */
+}
+
+.auth-card input::placeholder {
+    color: var(--text-muted);
+}
+
+.auth-card button {
+    margin-top: 24px;
+    background-color: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 13px;
+    font-size: 1rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.auth-card button:hover {
+    background-color: var(--accent-hover);
+}
+
+.auth-switch {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.auth-switch a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   10. RESPONSIVE (adjusts layout on small screens)
+   A "media query" only applies the CSS inside it
+   when the screen width matches the condition.
+   ============================================ */
+@media (max-width: 640px) {
+    header nav {
+        flex-direction: column;
+        /* stacks logo and menu vertically instead of side-by-side */
+        gap: 12px;
+    }
+
+    header nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        text-align: center;
+        /* stacks the two buttons instead of side-by-side */
+    }
+
+    .auth-card {
+        padding: 28px 22px;
+    }
+}
+
+/* ============================================
+   11. ANNOUNCEMENTS PAGE
+   ============================================ */
+.announcements-header {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 48px 24px 8px;
+}
+
+.announcements-header h1 {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+}
+
+.announcements-header p {
+    color: var(--text-muted);
+}
+
+.filter-section {
+    max-width: 1000px;
+    margin: 20px auto 0;
+    padding: 0 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-section select,
+.filter-section input {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+}
+
+.filter-section select {
+    min-width: 150px;
+}
+
+.filter-section input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-section select:focus,
+.filter-section input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.announcements-grid {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 24px 64px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+}
+
+.announcement-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.announcement-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+}
+
+.announcement-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.announcement-card .card-header h3 {
+    font-size: 1.05rem;
+    flex: 1;
+}
+
+.announcement-card .card-description {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.announcement-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.announcement-card .card-footer .date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.announcement-card .card-footer .category {
+    background-color: var(--dark);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.priority-high {
+    border-left: 4px solid #e5484d;
+}
+
+.priority-medium {
+    border-left: 4px solid #f5a623;
+}
+
+.priority-low {
+    border-left: 4px solid #3ddc84;
+}
+
+.priority-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.priority-badge-high {
+    background-color: rgba(229, 72, 77, 0.15);
+    color: #e5484d;
+}
+
+.priority-badge-medium {
+    background-color: rgba(245, 166, 35, 0.15);
+    color: #f5a623;
+}
+
+.priority-badge-low {
+    background-color: rgba(61, 220, 132, 0.15);
+    color: #3ddc84;
+}
+
+.no-announcements {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-muted);
+}
+
+.no-announcements i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    display: block;
+}
+
+/* ============================================
+   12. REPORT ISSUE PAGE
+   ============================================ */
+.report-section {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+}
+
+.report-section h1 {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+}
+
+.report-section>p {
+    color: var(--text-muted);
+    margin-bottom: 32px;
+}
+
+.report-form {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.report-form label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 16px;
+}
+
+.report-form label:first-of-type {
+    margin-top: 0;
+}
+
+.report-form select,
+.report-form input,
+.report-form textarea {
+    background-color: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+}
+
+.report-form select:focus,
+.report-form input:focus,
+.report-form textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.report-form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.report-form button {
+    margin-top: 24px;
+    background-color: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 13px;
+    font-size: 1rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.report-form button:hover {
+    background-color: var(--accent-hover);
+}
+
+.report-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ============================================
+   13. TOAST NOTIFICATIONS
+   ============================================ */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 24px;
+    min-width: 280px;
+    max-width: 400px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    animation: slideInRight 0.4s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toast-success {
+    border-left: 4px solid #3ddc84;
+}
+
+.toast-error {
+    border-left: 4px solid #e5484d;
+}
+
+.toast-info {
+    border-left: 4px solid var(--accent);
+}
+
+.toast-icon {
+    font-size: 1.4rem;
+}
+
+.toast-success .toast-icon {
+    color: #3ddc84;
+}
+
+.toast-error .toast-icon {
+    color: #e5484d;
+}
+
+.toast-info .toast-icon {
+    color: var(--accent);
+}
+
+.toast-message {
+    flex: 1;
+    color: var(--text-main);
+    font-size: 0.9rem;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0 4px;
+}
+
+.toast-close:hover {
+    color: var(--text-main);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   14. RESPONSIVE ENHANCEMENTS
+   ============================================ */
+@media (max-width: 640px) {
+    .report-form .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-section select,
+    .filter-section input {
+        width: 100%;
+    }
+
+    .announcements-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .toast {
+        min-width: auto;
+        max-width: 90vw;
+    }
+}
+
+/* Toast Notifications */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 24px;
+    min-width: 280px;
+    max-width: 400px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    animation: slideInRight 0.4s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toast-success {
+    border-left: 4px solid #3ddc84;
+}
+
+.toast-error {
+    border-left: 4px solid #e5484d;
+}
+
+.toast-info {
+    border-left: 4px solid var(--accent);
+}
+
+.toast-icon {
+    font-size: 1.4rem;
+}
+
+.toast-success .toast-icon {
+    color: #3ddc84;
+}
+
+.toast-error .toast-icon {
+    color: #e5484d;
+}
+
+.toast-info .toast-icon {
+    color: var(--accent);
+}
+
+.toast-message {
+    flex: 1;
+    color: var(--text-main);
+    font-size: 0.9rem;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0 4px;
+}
+
+.toast-close:hover {
+    color: var(--text-main);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Active navigation link */
+.nav-links a.active {
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+}
