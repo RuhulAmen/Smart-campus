@@ -15,7 +15,7 @@ CORS(app, origins=app.config['CORS_ORIGINS'].split(','))
 app.mongo = PyMongo(app)
 
 # Import models and routes
-from models import facility
+from models import Facility
 from routes import register_routes
 
 # Register routes
@@ -26,7 +26,7 @@ register_routes(app)
 def initialize_data():
     """Initialize default data on first request"""
     try:
-        facility_model = facility(app.mongo)
+        facility_model = Facility(app.mongo)
         facility_model.initialize_default_facilities()
         print("✅ Default facilities initialized")
     except Exception as e:

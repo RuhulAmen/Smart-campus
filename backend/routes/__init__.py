@@ -1,5 +1,6 @@
 from flask import Blueprint
 
+# Import blueprints
 from .auth import auth_bp
 from .facilities import facilities_bp
 from .announcements import announcements_bp
@@ -7,6 +8,14 @@ from .issues import issues_bp
 from .dashboard import dashboard_bp
 
 def register_routes(app):
+    # PASS THE MONGO DB TO THE BLUEPRINTS HERE (This fixes the circular import!)
+    auth_bp.mongo = app.mongo
+    facilities_bp.mongo = app.mongo
+    announcements_bp.mongo = app.mongo
+    issues_bp.mongo = app.mongo
+    dashboard_bp.mongo = app.mongo
+
+    # Register the blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(facilities_bp, url_prefix='/api/facilities')
     app.register_blueprint(announcements_bp, url_prefix='/api/announcements')
