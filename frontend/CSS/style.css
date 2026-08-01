@@ -1,46 +1,20 @@
-/* ============================================
-   0. VARIABLES
-   CSS variables let you define a color or value ONCE
-   and reuse it everywhere with var(--name). Change the
-   value here and it updates across the whole site —
-   no need to hunt through every rule.
-   ============================================ */
+
 :root {
     --dark: #0d1117;
-    /* navbar + footer background (now near-black) */
-    --accent: #6d8bff;
-    /* buttons, links, highlights — brightened slightly
-       so it still stands out against dark backgrounds */
-    --accent-hover: #8ca0ff;
-    --bg-light: #161b22;
-    /* "light" sections are now a slightly raised dark panel,
-       not actually light — name stays the same so we don't
-       have to rename it everywhere else in the file */
+    --accent: #0b31c7;
+    --accent-hover: #06b4f8;
+    --bg-light: #010811;
     --text-main: #e6e8eb;
     --text-muted: #9aa2b1;
-    --border: #2a313d;
-    --card-bg: #1c222b;
-    /* new: used for facility cards, which previously used
-       plain white and need their own surface color now */
-
+    --border: #171a20;
+    --card-bg: #050708;
     --font-heading: 'Poppins', sans-serif;
     --font-body: 'Inter', Arial, sans-serif;
 }
-
-/* ============================================
-   1. RESET
-   Browsers add their own default spacing to elements.
-   This removes it so every browser starts from the same
-   blank slate — otherwise your layout looks slightly
-   different in Chrome vs Firefox vs Edge.
-   ============================================ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* box-sizing: border-box means padding/border are
-       INCLUDED in an element's width, instead of added
-       on top of it. Makes layout math much easier. */
 }
 
 body {
@@ -48,16 +22,12 @@ body {
     color: var(--text-main);
     background-color: var(--dark);
     line-height: 1.6;
-    /* line-height controls space between lines of text,
-       not just font size — 1.6 keeps paragraphs readable */
 }
 
 h1,
 h2,
 h3 {
     font-family: var(--font-heading);
-    /* headings get the bolder display font, body text
-       stays on the more readable Inter font */
 }
 
 /* ============================================
@@ -65,45 +35,32 @@ h3 {
    ============================================ */
 header {
     background-color: var(--dark);
-    /* dark navbar background */
     padding: 16px 40px;
 }
 
 header nav {
     display: flex;
-    /* flex lets us put the logo and the menu
-       side-by-side instead of stacked on top of each other */
     justify-content: space-between;
-    /* pushes logo to the left, menu to the right */
     align-items: center;
-    /* vertically centers them so they line up */
 }
-
 header h2 {
     color: #ffffff;
 }
-
 header nav ul {
     display: flex;
-    /* turns the vertical list of links into a horizontal row */
     list-style: none;
-    /* removes the bullet points */
     gap: 28px;
-    /* spacing between each link */
 }
 
 header nav ul li a {
     color: #ffffff;
     text-decoration: none;
-    /* removes the underline under links */
     font-size: 0.95rem;
 }
 
 header nav ul li a:hover {
     color: var(--accent);
-    /* changes link color on mouse hover, for feedback */
 }
-
 /* ============================================
    3. HERO SECTION (top intro section)
    ============================================ */
@@ -117,7 +74,6 @@ header nav ul li a:hover {
     font-size: 2.4rem;
     max-width: 800px;
     margin: 0 auto 20px auto;
-    /* "0 auto" centers a block element horizontally */
 }
 
 .hero p {
@@ -130,9 +86,6 @@ header nav ul li a:hover {
 .btn-primary,
 .btn-secondary {
     display: inline-block;
-    /* anchors are inline by default, which ignores
-       top/bottom padding — inline-block fixes that while
-       still letting them sit side-by-side like text */
     font-size: 1rem;
     padding: 12px 26px;
     margin: 0 8px;
@@ -140,7 +93,6 @@ header nav ul li a:hover {
     border-radius: 6px;
     cursor: pointer;
     text-decoration: none;
-    /* removes the default underline links get */
 }
 
 .btn-primary {
@@ -264,10 +216,6 @@ footer {
     margin: 0 auto;
     padding: 24px 24px 64px;
     display: grid;
-    /* auto-fill + minmax lets the grid decide how many
-       columns fit per row on its own — 3 on a wide screen,
-       2 on a tablet, 1 on mobile — with no media query needed */
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 18px;
 }
 
@@ -302,18 +250,12 @@ footer {
     color: var(--text-muted);
     margin-top: 4px;
 }
-
-/* --- Status badges: small pill shapes with a tinted
-   background matching the status color --- */
 .status-badge {
     font-size: 0.72rem;
     font-weight: 600;
     padding: 4px 10px;
     border-radius: 999px;
-    /* a very large border-radius on a short element makes
-       the corners fully round, creating a "pill" shape */
     white-space: nowrap;
-    /* stops the badge text from wrapping onto two lines */
 }
 
 .status-badge-operational {
@@ -356,7 +298,6 @@ footer {
     display: flex;
     gap: 16px;
     flex-wrap: wrap;
-    /* wraps into a new row on small screens instead of squeezing */
 }
 
 .stat-card {
@@ -365,8 +306,6 @@ footer {
     border-radius: 10px;
     padding: 24px;
     flex: 1;
-    /* flex: 1 makes all three cards share the row equally,
-       instead of only being as wide as their content */
     min-width: 160px;
     display: flex;
     flex-direction: column;
@@ -383,20 +322,16 @@ footer {
     color: var(--text-muted);
     font-size: 0.9rem;
 }
-
-/* Reusing the same status color names from the facility
-   grid concept, so "operational" always means the same
-   color everywhere on the site */
 .status-operational {
-    color: #3ddc84;
+    color: #0b8a44;
 }
 
 .status-maintenance {
-    color: #f5a623;
+    color: #eca634;
 }
 
 .status-closed {
-    color: #e5484d;
+    color: #e61f25;
 }
 
 .quick-actions {
@@ -418,8 +353,6 @@ footer {
     text-decoration: none;
     color: var(--text-main);
     transition: border-color 0.15s ease;
-    /* transition makes the hover border change smoothly
-       instead of snapping instantly */
 }
 
 .action-card:hover {
@@ -476,9 +409,6 @@ footer {
    ============================================ */
 .auth-section {
     min-height: calc(100vh - 140px);
-    /* 100vh = full viewport height. We subtract roughly the
-       header + footer height so the card sits centered in
-       the space between them, not the whole screen. */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -508,8 +438,6 @@ footer {
 .auth-card form {
     display: flex;
     flex-direction: column;
-    /* stacks label, input, label, input, button vertically
-       in the order they appear in the HTML */
     gap: 6px;
 }
 
@@ -534,8 +462,6 @@ footer {
 .auth-card select:focus {
     outline: none;
     border-color: var(--accent);
-    /* replaces the browser's default blue focus ring with
-       our own accent color, so it matches the theme */
 }
 
 .auth-card input::placeholder {
@@ -583,7 +509,6 @@ footer {
 @media (max-width: 640px) {
     header nav {
         flex-direction: column;
-        /* stacks logo and menu vertically instead of side-by-side */
         gap: 12px;
     }
 
@@ -603,7 +528,6 @@ footer {
         width: 100%;
         margin: 10px 0;
         text-align: center;
-        /* stacks the two buttons instead of side-by-side */
     }
 
     .auth-card {

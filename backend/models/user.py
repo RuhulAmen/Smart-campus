@@ -4,7 +4,8 @@ import bcrypt
 
 class User:
     def __init__(self, mongo):
-        self.collection = mongo.db.users
+        self.mongo = mongo 
+        self.collection = self.mongo.cx['smart_campus']['users']
     
     def create_user(self, full_name, email, student_id, password, role='student'):
         """Create a new user with hashed password"""

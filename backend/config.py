@@ -9,7 +9,7 @@ class Config:
     MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'smart_campus')
     
     # JWT Configuration
-    SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here-change-in-production')
+    SECRET_KEY = os.getenv('SECRET_KEY', '6e95215c434aa56fbc29654035e84b52d001a42b014e5f1b1328eace7ff9c876')
     JWT_EXPIRATION_HOURS = 24
     
     # CORS Settings

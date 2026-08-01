@@ -2,7 +2,8 @@ from datetime import datetime
 
 class Facility:
     def __init__(self, mongo):
-        self.collection = mongo.db.facilities
+        self.mongo = mongo
+        self.collection = self.mongo.cx['smart_campus']['facilities']
     
     def create_facility(self, name, location, description, status='operational'):
         """Create a new facility"""

@@ -2,8 +2,9 @@ from datetime import datetime
 
 class Issue:
     def __init__(self, mongo):
-        self.collection = mongo.db.issues
-    
+        self.mongo = mongo
+        self.collection = self.mongo.cx['smart_campus']['issues']
+
     def create_issue(self, facility, title, description, reporter_name, reporter_email):
         """Create a new issue report"""
         issue = {

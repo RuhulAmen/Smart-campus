@@ -2,7 +2,8 @@ from datetime import datetime
 
 class Announcement:
     def __init__(self, mongo):
-        self.collection = mongo.db.announcements
+        self.mongo = mongo
+        self.collection = self.mongo.cx['smart_campus']['announcements']
     
     def create_announcement(self, title, description, priority, category, created_by):
         """Create a new announcement"""
