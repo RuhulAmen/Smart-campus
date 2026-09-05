@@ -43,6 +43,10 @@ class Issue:
     def get_issues_by_facility(self, facility):
         """Get issues for a specific facility"""
         return list(self.collection.find({'facility': facility}).sort('created_at', -1))
+
+    def get_issues_by_email(self, email):
+        """Get all issues reported by a given email address"""
+        return list(self.collection.find({'reporter_email': email}).sort('created_at', -1))
     
     def get_pending_issues(self):
         """Get all pending issues"""

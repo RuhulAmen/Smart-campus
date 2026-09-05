@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="CSS/style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <h2>Smart Campus</h2>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="admin.html">Admin</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="admin-layout">
+            <div class="page-header">
+                <h1>🛠️ Admin Panel</h1>
+                <p>Manage campus facilities, announcements, and maintenance issues</p>
+            </div>
+
+            <!-- ============ FACILITIES ============ -->
+            <section class="admin-section">
+                <h2>🏢 Facilities</h2>
+                <div class="admin-grid">
+                    <form class="panel-form" id="facilityForm">
+                        <h3>Add Facility</h3>
+                        <label for="fac_name">Name *</label>
+                        <input type="text" id="fac_name" placeholder="e.g. Gymnasium" required>
+
+                        <label for="fac_location">Location *</label>
+                        <input type="text" id="fac_location" placeholder="e.g. Building D, Floor 1" required>
+
+                        <label for="fac_description">Description</label>
+                        <textarea id="fac_description" placeholder="Short description of the facility"></textarea>
+
+                        <label for="fac_status">Status</label>
+                        <select id="fac_status">
+                            <option value="operational">Operational</option>
+                            <option value="maintenance">Under Maintenance</option>
+                            <option value="closed">Closed</option>
+                        </select>
+
+                        <button type="submit">➕ Add Facility</button>
+                    </form>
+
+                    <div class="facility-detail-grid" id="facilitiesList">
+                        <p class="text-muted">Loading facilities...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ ANNOUNCEMENTS ============ -->
+            <section class="admin-section">
+                <h2>📢 Announcements</h2>
+                <div class="admin-grid">
+                    <form class="panel-form" id="announcementForm">
+                        <h3>New Announcement</h3>
+                        <label for="ann_title">Title *</label>
+                        <input type="text" id="ann_title" placeholder="e.g. Library closed this weekend" required>
+
+                        <label for="ann_description">Description *</label>
+                        <textarea id="ann_description" placeholder="Full announcement text" required></textarea>
+
+                        <label for="ann_priority">Priority</label>
+                        <select id="ann_priority">
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="low">Low</option>
+                        </select>
+
+                        <label for="ann_category">Category</label>
+                        <input type="text" id="ann_category" placeholder="e.g. Maintenance, General" value="General">
+
+                        <button type="submit">📣 Publish</button>
+                    </form>
+
+                    <div id="announcementsList">
+                        <p class="text-muted">Loading announcements...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ ISSUES ============ -->
+            <section class="admin-section">
+                <h2>⚠️ Reported Issues</h2>
+                <div id="issuesList">
+                    <p class="text-muted">Loading issues...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Smart Campus Utility and Maintenance Management System. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        // ============================================
+        // ADMIN PAGE LOGIC
+        // ============================================
+
+        const FACILITY_STATUSES = ['operational', 'maintenance', 'closed'];
+        const ISSUE_STATUSES = ['pending', 'in_progress', 'resolved', 'rejected'];
+
+        function facilityStatusLabel(status) {
+            const labels = {
+                operational: 'Operational',
+                maintenance: 'Under Maintenance',
+                closed: 'Closed'
+            };
+            return labels[status] || status || 'Unknown';
+        }
+
+        function issueStatusLabel(status) {
+            const labels = {
+                pending: 'Pending',
+                in_progress: 'In Progress',
+                resolved: 'Resolved',
+                rejected: 'Rejected'
+            };
+            return labels[status] || status || 'Unknown';
+        }
+
+        // ============================================
+        // LOADERS
+        // ============================================
+
+        async function adminLoadFacilities() {
+            const container = document.getElementById('facilitiesList');
+            try {
+                const facilities = await getFacilities();
+
+                if (!facilities || facilities.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No facilities yet — add one on the left.</p>';
+                    return;
+                }
+
+                container.innerHTML = facilities.map(f => {
+                    const badgeClass = `status-badge-${f.status}`;
+                    const options = FACILITY_STATUSES.map(s => {
+                        const sel = s === f.status ? ' selected' : '';
+                        return `<option value="${s}"${sel}>${facilityStatusLabel(s)}</option>`;
+                    }).join('');
+
+                    return `
+                        <div class="facility-detail-card">
+                            <div class="facility-detail-top">
+                                <h3>${escapeHtml(f.name)}</h3>
+                                <span class="status-badge ${badgeClass}">${facilityStatusLabel(f.status)}</span>
+                            </div>
+                            <div class="facility-location">📍 ${escapeHtml(f.location || 'Location not specified')}</div>
+                            ${f.description ? `<p style="font-size: 0.85rem; color: var(--text-muted);">${escapeHtml(f.description)}</p>` : ''}
+                            <div class="card-actions">
+                                <select id="facStatus-${f._id}">${options}</select>
+                                <button class="btn-small" onclick="adminUpdateFacilityStatus('${f._id}')">Update</button>
+                                <button class="btn-small btn-danger" onclick="adminDeleteFacility('${f._id}')">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading facilities:', error);
+                container.innerHTML = '<p class="text-muted">Failed to load facilities.</p>';
+            }
+        }
+
+        async function adminLoadAnnouncements() {
+            const container = document.getElementById('announcementsList');
+            try {
+                const announcements = await getAnnouncements();
+
+                if (!announcements || announcements.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No announcements yet — publish one on the left.</p>';
+                    return;
+                }
+
+                container.innerHTML = announcements.map(ann => `
+                    <div class="admin-item">
+                        <div class="admin-item-main">
+                            <div class="admin-item-title">${escapeHtml(ann.title)}</div>
+                            <div class="admin-item-sub">
+                                <span class="priority-badge priority-badge-${escapeHtml(ann.priority)}">${escapeHtml((ann.priority || 'medium').toUpperCase())}</span>
+                                &nbsp;${escapeHtml(ann.category || 'General')} &nbsp;•&nbsp; 📅 ${new Date(ann.date).toLocaleDateString()}
+                            </div>
+                            <p class="admin-item-desc">${escapeHtml(ann.description)}</p>
+                        </div>
+                        <div class="admin-item-actions">
+                            <button class="btn-small btn-danger" onclick="adminDeleteAnnouncement('${ann._id}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+                container.innerHTML = '<p class="text-muted">Failed to load announcements.</p>';
+            }
+        }
+
+        async function adminLoadIssues() {
+            const container = document.getElementById('issuesList');
+            try {
+                const issues = await getIssues();
+
+                if (!issues || issues.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No issues reported yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = issues.map(issue => {
+                    const options = ISSUE_STATUSES.map(s => {
+                        const sel = s === issue.status ? ' selected' : '';
+                        return `<option value="${s}"${sel}>${issueStatusLabel(s)}</option>`;
+                    }).join('');
+
+                    return `
+                        <div class="admin-item">
+                            <div class="admin-item-main">
+                                <div class="admin-item-title">${escapeHtml(issue.title)}
+                                    <span class="issue-badge issue-badge-${escapeHtml(issue.status)}">${issueStatusLabel(issue.status)}</span>
+                                </div>
+                                <div class="admin-item-sub">
+                                    📍 ${escapeHtml(issue.facility)} &nbsp;•&nbsp; 🗓️ ${new Date(issue.date).toLocaleDateString()}
+                                    &nbsp;•&nbsp; 👤 ${escapeHtml(issue.reporter_name)} (${escapeHtml(issue.reporter_email)})
+                                </div>
+                                <p class="admin-item-desc">${escapeHtml(issue.description)}</p>
+                            </div>
+                            <div class="admin-item-actions">
+                                <select id="issueStatus-${issue._id}">${options}</select>
+                                <button class="btn-small" onclick="adminUpdateIssueStatus('${issue._id}')">Update</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading issues:', error);
+                container.innerHTML = '<p class="text-muted">Failed to load issues.</p>';
+            }
+        }
+
+        // ============================================
+        // ACTIONS
+        // ============================================
+
+        async function adminAddFacility(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('fac_name').value.trim();
+            const location = document.getElementById('fac_location').value.trim();
+            const description = document.getElementById('fac_description').value.trim();
+            const status = document.getElementById('fac_status').value;
+
+            if (!name || !location) {
+                showToast('Name and location are required', 'error');
+                return;
+            }
+
+            const form = document.getElementById('facilityForm');
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = 'Adding...';
+            btn.disabled = true;
+
+            try {
+                await createFacility({ name, location, description, status });
+                form.reset();
+                await adminLoadFacilities();
+            } catch (error) {
+                showToast(error.message || 'Failed to add facility', 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function adminUpdateFacilityStatus(facilityId) {
+            const status = document.getElementById(`facStatus-${facilityId}`).value;
+            try {
+                await updateFacilityStatus(facilityId, status);
+                await adminLoadFacilities();
+            } catch (error) {
+                showToast(error.message || 'Failed to update status', 'error');
+            }
+        }
+
+        async function adminDeleteFacility(facilityId) {
+            if (!confirm('Delete this facility? It will be hidden from the facilities list.')) return;
+            try {
+                await deleteFacility(facilityId);
+                await adminLoadFacilities();
+            } catch (error) {
+                showToast(error.message || 'Failed to delete facility', 'error');
+            }
+        }
+
+        async function adminAddAnnouncement(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('ann_title').value.trim();
+            const description = document.getElementById('ann_description').value.trim();
+            const priority = document.getElementById('ann_priority').value;
+            const category = document.getElementById('ann_category').value.trim() || 'General';
+
+            if (!title || !description) {
+                showToast('Title and description are required', 'error');
+                return;
+            }
+
+            const form = document.getElementById('announcementForm');
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = 'Publishing...';
+            btn.disabled = true;
+
+            try {
+                await createAnnouncement({ title, description, priority, category });
+                form.reset();
+                document.getElementById('ann_category').value = 'General';
+                await adminLoadAnnouncements();
+            } catch (error) {
+                showToast(error.message || 'Failed to publish announcement', 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function adminDeleteAnnouncement(announcementId) {
+            if (!confirm('Delete this announcement?')) return;
+            try {
+                await deleteAnnouncement(announcementId);
+                await adminLoadAnnouncements();
+            } catch (error) {
+                showToast(error.message || 'Failed to delete announcement', 'error');
+            }
+        }
+
+        async function adminUpdateIssueStatus(issueId) {
+            const status = document.getElementById(`issueStatus-${issueId}`).value;
+            try {
+                await updateIssueStatus(issueId, status);
+                await adminLoadIssues();
+            } catch (error) {
+                showToast(error.message || 'Failed to update issue status', 'error');
+            }
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            updateNavigation();
+
+            // Admin-only guard
+            if (!isLoggedIn() || !isAdmin()) {
+                showToast('Admin access required', 'error');
+                setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                return;
+            }
+
+            document.getElementById('facilityForm').addEventListener('submit', adminAddFacility);
+            document.getElementById('announcementForm').addEventListener('submit', adminAddAnnouncement);
+
+            await Promise.all([
+                adminLoadFacilities(),
+                adminLoadAnnouncements(),
+                adminLoadIssues()
+            ]);
+        });
+
+        // Expose helpers to inline onclick handlers
+        window.adminAddFacility = adminAddFacility;
+        window.adminUpdateFacilityStatus = adminUpdateFacilityStatus;
+        window.adminDeleteFacility = adminDeleteFacility;
+        window.adminAddAnnouncement = adminAddAnnouncement;
+        window.adminDeleteAnnouncement = adminDeleteAnnouncement;
+        window.adminUpdateIssueStatus = adminUpdateIssueStatus;
+    </script>
+</body>
+
+</html>

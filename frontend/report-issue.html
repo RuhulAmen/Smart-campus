@@ -72,10 +72,31 @@
 
     <script src="js/app.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             updateNavigation();
 
             const form = document.getElementById('reportForm');
+
+            // Prefill reporter details when a user is logged in
+            const user = getCurrentUser();
+            if (user) {
+                if (user.full_name) document.getElementById('reporter_name').value = user.full_name;
+                if (user.email) document.getElementById('reporter_email').value = user.email;
+            }
+
+            // Load facilities dynamically (hardcoded options act as fallback if the API is down)
+            try {
+                const facilities = await getFacilities();
+                const facilitySelect = document.getElementById('facility');
+                if (facilities && facilities.length > 0) {
+                    facilitySelect.innerHTML = '<option value="">Select a facility</option>' +
+                        facilities.map(f =>
+                            `<option value="${escapeHtml(f.name)}">${escapeHtml(f.name)}</option>`
+                        ).join('');
+                }
+            } catch (error) {
+                console.error('Error loading facilities for report form:', error);
+            }
 
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();

@@ -92,6 +92,22 @@ function isLoggedIn() {
     return !!localStorage.getItem('token');
 }
 
+function isAdmin() {
+    const user = getCurrentUser();
+    return !!user && user.role === 'admin';
+}
+
+// Escape HTML to avoid breaking markup / XSS when rendering user content
+function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 // Facility Functions
 async function getFacilities() {
     try {
@@ -101,6 +117,30 @@ async function getFacilities() {
         console.error('Error fetching facilities:', error);
         return [];
     }
+}
+
+async function createFacility(data) {
+    const result = await apiRequest('/facilities', 'POST', data);
+    showToast('✅ Facility created successfully!', 'success');
+    return result;
+}
+
+async function updateFacility(facilityId, data) {
+    const result = await apiRequest(`/facilities/${facilityId}`, 'PUT', data);
+    showToast('✅ Facility updated successfully!', 'success');
+    return result;
+}
+
+async function updateFacilityStatus(facilityId, status) {
+    const result = await apiRequest(`/facilities/${facilityId}/status`, 'PATCH', { status });
+    showToast('✅ Facility status updated!', 'success');
+    return result;
+}
+
+async function deleteFacility(facilityId) {
+    const result = await apiRequest(`/facilities/${facilityId}`, 'DELETE');
+    showToast('✅ Facility deleted', 'success');
+    return result;
 }
 
 // Announcement Functions
@@ -124,6 +164,18 @@ async function getRecentAnnouncements(limit = 5) {
     }
 }
 
+async function createAnnouncement(data) {
+    const result = await apiRequest('/announcements', 'POST', data);
+    showToast('✅ Announcement published!', 'success');
+    return result;
+}
+
+async function deleteAnnouncement(announcementId) {
+    const result = await apiRequest(`/announcements/${announcementId}`, 'DELETE');
+    showToast('✅ Announcement deleted', 'success');
+    return result;
+}
+
 // Issue Functions
 async function reportIssue(issueData) {
     try {
@@ -136,6 +188,42 @@ async function reportIssue(issueData) {
     }
 }
 
+async function getIssues() {
+    try {
+        const result = await apiRequest('/issues');
+        return result.issues || [];
+    } catch (error) {
+        console.error('Error fetching issues:', error);
+        return [];
+    }
+}
+
+async function getIssueStats() {
+    try {
+        const result = await apiRequest('/issues/stats');
+        return result.stats || null;
+    } catch (error) {
+        console.error('Error fetching issue stats:', error);
+        return null;
+    }
+}
+
+async function trackIssues(email) {
+    try {
+        const result = await apiRequest(`/issues/track?email=${encodeURIComponent(email)}`);
+        return result.issues || [];
+    } catch (error) {
+        console.error('Error tracking issues:', error);
+        throw error;
+    }
+}
+
+async function updateIssueStatus(issueId, status) {
+    const result = await apiRequest(`/issues/${issueId}/status`, 'PATCH', { status });
+    showToast('✅ Issue status updated!', 'success');
+    return result;
+}
+
 // Dashboard Functions
 async function getDashboardStats() {
     try {
@@ -145,6 +233,23 @@ async function getDashboardStats() {
         console.error('Error fetching dashboard stats:', error);
         return null;
     }
+}
+
+// Profile Functions
+async function getUserProfile() {
+    try {
+        const result = await apiRequest('/auth/profile');
+        return result.user || null;
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+    }
+}
+
+async function updateUserProfile(data) {
+    const result = await apiRequest('/auth/profile', 'PUT', data);
+    showToast('✅ Profile updated successfully!', 'success');
+    return result;
 }
 
 // Toast Notification System
@@ -197,22 +302,34 @@ function updateNavigation() {
     const nav = document.querySelector('header nav ul');
     if (!nav) return;
 
+    // Highlight the link for the page we are currently on
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+
+    const link = (href, label) => {
+        const active = (href === currentPage) ? ' class="active"' : '';
+        return `<li><a href="${href}"${active}>${label}</a></li>`;
+    };
+
     if (user) {
-        nav.innerHTML = `
-            <li><a href="index.html">Home</a></li>
-            <li><a href="facilities.html">Facilities</a></li>
-            <li><a href="announcements.html">Announcements</a></li>
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="#" onclick="logout()">Logout</a></li>
-        `;
+        const isAdmin = user.role === 'admin';
+        nav.innerHTML = [
+            link('index.html', 'Home'),
+            link('facilities.html', 'Facilities'),
+            link('announcements.html', 'Announcements'),
+            link('my-reports.html', 'My Reports'),
+            link('dashboard.html', 'Dashboard'),
+            isAdmin ? link('admin.html', 'Admin') : '',
+            link('profile.html', 'Profile'),
+            '<li><a href="#" onclick="logout()">Logout</a></li>'
+        ].join('');
     } else {
-        nav.innerHTML = `
-            <li><a href="index.html">Home</a></li>
-            <li><a href="facilities.html">Facilities</a></li>
-            <li><a href="announcements.html">Announcements</a></li>
-            <li><a href="login.html">Login</a></li>
-            <li><a href="signup.html">Sign Up</a></li>
-        `;
+        nav.innerHTML = [
+            link('index.html', 'Home'),
+            link('facilities.html', 'Facilities'),
+            link('announcements.html', 'Announcements'),
+            link('login.html', 'Login'),
+            link('signup.html', 'Sign Up')
+        ].join('');
     }
 }
 
@@ -231,11 +348,25 @@ window.signup = signup;
 window.logout = logout;
 window.getCurrentUser = getCurrentUser;
 window.isLoggedIn = isLoggedIn;
+window.isAdmin = isAdmin;
+window.escapeHtml = escapeHtml;
 window.getFacilities = getFacilities;
+window.createFacility = createFacility;
+window.updateFacility = updateFacility;
+window.updateFacilityStatus = updateFacilityStatus;
+window.deleteFacility = deleteFacility;
 window.getAnnouncements = getAnnouncements;
 window.getRecentAnnouncements = getRecentAnnouncements;
+window.createAnnouncement = createAnnouncement;
+window.deleteAnnouncement = deleteAnnouncement;
 window.reportIssue = reportIssue;
+window.getIssues = getIssues;
+window.getIssueStats = getIssueStats;
+window.trackIssues = trackIssues;
+window.updateIssueStatus = updateIssueStatus;
 window.getDashboardStats = getDashboardStats;
+window.getUserProfile = getUserProfile;
+window.updateUserProfile = updateUserProfile;
 window.showToast = showToast;
 window.updateNavigation = updateNavigation;
 window.validateEmail = validateEmail;
@@ -245,4 +376,3 @@ window.validatePassword = validatePassword;
 document.addEventListener('DOMContentLoaded', function () {
     updateNavigation();
 });
-// Remove existing toasts if too many
