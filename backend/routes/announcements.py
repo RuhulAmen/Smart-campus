@@ -4,7 +4,9 @@ from utils.helpers import token_required, admin_required
 
 announcements_bp = Blueprint('announcements', __name__)
 
-@announcements_bp.route('/', methods=['GET'])
+# strict_slashes=False: the SPA calls these without a trailing slash, so without
+# it every request gets an extra 308 redirect (and breaks cross-origin POSTs).
+@announcements_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_announcements():
     """Get all announcements"""
     try:
@@ -55,7 +57,7 @@ def get_announcements_by_priority(priority):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@announcements_bp.route('/', methods=['POST'])
+@announcements_bp.route('/', methods=['POST'], strict_slashes=False)
 @token_required
 @admin_required
 def create_announcement(current_user):

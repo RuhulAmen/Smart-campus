@@ -51,7 +51,10 @@ def token_required(f):
         if not user:
             return jsonify({'error': 'User not found'}), 401
         
-        # Add user to request context
+        # Add user to request context.
+        # Drop the password hash: it is `bytes` (not JSON serializable) and must
+        # never be handed to a view or serialized into a response.
+        user.pop('password', None)
         user['_id'] = str(user['_id'])
         request.current_user = user
         

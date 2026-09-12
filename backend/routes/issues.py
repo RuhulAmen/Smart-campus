@@ -11,7 +11,9 @@ EMAIL_REGEX = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
 # BEFORE '/<issue_id>' so Flask does not capture them as an issue ID.
 
 
-@issues_bp.route('/', methods=['GET'])
+# strict_slashes=False: the SPA calls these without a trailing slash, so without
+# it every request gets an extra 308 redirect (and breaks cross-origin POSTs).
+@issues_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_issues():
     """Get all issues"""
     try:
@@ -29,7 +31,7 @@ def get_issues():
         return jsonify({'error': str(e)}), 500
 
 
-@issues_bp.route('/', methods=['POST'])
+@issues_bp.route('/', methods=['POST'], strict_slashes=False)
 def create_issue():
     """Create a new issue report (Public)"""
     try:

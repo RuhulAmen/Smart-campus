@@ -137,7 +137,7 @@ def verify_token(current_user):
     """Verify token and get current user"""
     try:
         return jsonify({
-            'user': current_user,
+            'user': _public_user(current_user),
             'authenticated': True
         }), 200
     except Exception as e:

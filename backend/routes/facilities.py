@@ -4,7 +4,9 @@ from utils.helpers import token_required, admin_required
 
 facilities_bp = Blueprint('facilities', __name__)
 
-@facilities_bp.route('/', methods=['GET'])
+# strict_slashes=False: the SPA calls these without a trailing slash, so without
+# it every request gets an extra 308 redirect (and breaks cross-origin POSTs).
+@facilities_bp.route('/', methods=['GET'], strict_slashes=False)
 def get_facilities():
     """Get all facilities"""
     try:
@@ -34,7 +36,7 @@ def get_facility(facility_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@facilities_bp.route('/', methods=['POST'])
+@facilities_bp.route('/', methods=['POST'], strict_slashes=False)
 @token_required
 @admin_required
 def create_facility(current_user):

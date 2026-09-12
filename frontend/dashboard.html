@@ -94,7 +94,10 @@
             // Get user
             const user = getCurrentUser();
             if (user) {
-                document.getElementById('userName').textContent = user.full_name.split(' ')[0];
+                // full_name is not guaranteed to be present, and an exception here
+                // would abort the whole handler before the stats are loaded.
+                const firstName = (user.full_name || user.email || 'there').split(' ')[0];
+                document.getElementById('userName').textContent = firstName;
             }
 
             // Load dashboard stats
@@ -115,8 +118,8 @@
                     } else {
                         container.innerHTML = announcements.map(ann => `
                             <li>
-                                <div class="announce-title">${ann.title}</div>
-                                <div class="announce-date">📅 ${new Date(ann.date).toLocaleDateString()} • ${ann.category}</div>
+                                <div class="announce-title">${escapeHtml(ann.title)}</div>
+                                <div class="announce-date">📅 ${new Date(ann.date).toLocaleDateString()} • ${escapeHtml(ann.category || 'General')}</div>
                             </li>
                         `).join('');
                     }

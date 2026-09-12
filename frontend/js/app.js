@@ -2,7 +2,14 @@
 // BACKEND API INTEGRATION
 // ============================================
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Flask serves this frontend itself, so the API normally lives on the same
+// origin (localhost, 127.0.0.1, a LAN IP or a deployed host all work).
+// When the frontend is hosted separately from the API, point this elsewhere
+// with `window.SMART_CAMPUS_API_BASE = 'https://api.example.com/api'`.
+const API_BASE_URL = window.SMART_CAMPUS_API_BASE ||
+    (window.location.origin.startsWith('http')
+        ? `${window.location.origin}/api`
+        : 'http://localhost:5000/api');
 
 // API Helper
 async function apiRequest(endpoint, method = 'GET', data = null) {
