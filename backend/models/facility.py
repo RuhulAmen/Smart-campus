@@ -1,9 +1,18 @@
+import os
 from datetime import datetime
+from bson import ObjectId
+from bson.errors import InvalidId
 
 class Facility:
     def __init__(self, mongo):
         self.mongo = mongo
-        self.collection = self.mongo.cx['smart_campus']['facilities']
+        db_name = os.getenv('MONGO_DB_NAME', 'smart_campus')
+        if hasattr(mongo, 'db') and mongo.db is not None:
+            self.collection = mongo.db['facilities']
+        elif hasattr(mongo, 'cx') and mongo.cx is not None:
+            self.collection = mongo.cx[db_name]['facilities']
+        else:
+            self.collection = mongo['facilities']
     
     def create_facility(self, name, location, description, status='operational'):
         """Create a new facility"""
@@ -26,36 +35,44 @@ class Facility:
     
     def get_facility_by_id(self, facility_id):
         """Get facility by ID"""
-        from bson import ObjectId
-        return self.collection.find_one({'_id': ObjectId(facility_id), 'is_active': True})
+        try:
+            return self.collection.find_one({'_id': ObjectId(facility_id), 'is_active': True})
+        except (InvalidId, TypeError):
+            return None
     
     def update_facility(self, facility_id, update_data):
         """Update facility information"""
-        from bson import ObjectId
-        update_data['updated_at'] = datetime.utcnow()
-        result = self.collection.update_one(
-            {'_id': ObjectId(facility_id)},
-            {'$set': update_data}
-        )
-        return result.modified_count > 0
+        try:
+            update_data['updated_at'] = datetime.utcnow()
+            result = self.collection.update_one(
+                {'_id': ObjectId(facility_id)},
+                {'$set': update_data}
+            )
+            return result.modified_count > 0
+        except (InvalidId, TypeError):
+            return False
     
     def update_status(self, facility_id, status):
         """Update facility status"""
-        from bson import ObjectId
-        result = self.collection.update_one(
-            {'_id': ObjectId(facility_id)},
-            {'$set': {'status': status, 'updated_at': datetime.utcnow()}}
-        )
-        return result.modified_count > 0
+        try:
+            result = self.collection.update_one(
+                {'_id': ObjectId(facility_id)},
+                {'$set': {'status': status, 'updated_at': datetime.utcnow()}}
+            )
+            return result.modified_count > 0
+        except (InvalidId, TypeError):
+            return False
     
     def delete_facility(self, facility_id):
         """Soft delete a facility"""
-        from bson import ObjectId
-        result = self.collection.update_one(
-            {'_id': ObjectId(facility_id)},
-            {'$set': {'is_active': False, 'updated_at': datetime.utcnow()}}
-        )
-        return result.modified_count > 0
+        try:
+            result = self.collection.update_one(
+                {'_id': ObjectId(facility_id)},
+                {'$set': {'is_active': False, 'updated_at': datetime.utcnow()}}
+            )
+            return result.modified_count > 0
+        except (InvalidId, TypeError):
+            return False
     
     def initialize_default_facilities(self):
         """Initialize default facilities if none exist"""

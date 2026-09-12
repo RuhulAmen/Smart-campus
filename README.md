@@ -26,7 +26,7 @@ A full-stack web application built with **Flask** and **MongoDB Atlas** to manag
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
-|-------|------------|
+|- - - - - - -|- - - - - - - - - - - -|  
 | **Backend** | Python 3.10+, Flask 3.0+ |
 | **Database** | MongoDB Atlas (Cloud) + Flask-PyMongo |
 | **Authentication** | JWT (PyJWT), Bcrypt |
@@ -147,4 +147,3 @@ The app will be available at `http://localhost:5000`
 *(Add your screenshots here!)*
 
 ---
-

@@ -1,9 +1,18 @@
+import os
 from datetime import datetime
+from bson import ObjectId
+from bson.errors import InvalidId
 
 class Announcement:
     def __init__(self, mongo):
         self.mongo = mongo
-        self.collection = self.mongo.cx['smart_campus']['announcements']
+        db_name = os.getenv('MONGO_DB_NAME', 'smart_campus')
+        if hasattr(mongo, 'db') and mongo.db is not None:
+            self.collection = mongo.db['announcements']
+        elif hasattr(mongo, 'cx') and mongo.cx is not None:
+            self.collection = mongo.cx[db_name]['announcements']
+        else:
+            self.collection = mongo['announcements']
     
     def create_announcement(self, title, description, priority, category, created_by):
         """Create a new announcement"""
@@ -30,27 +39,33 @@ class Announcement:
     
     def get_announcement_by_id(self, announcement_id):
         """Get announcement by ID"""
-        from bson import ObjectId
-        return self.collection.find_one({'_id': ObjectId(announcement_id), 'status': 'active'})
+        try:
+            return self.collection.find_one({'_id': ObjectId(announcement_id), 'status': 'active'})
+        except (InvalidId, TypeError):
+            return None
     
     def update_announcement(self, announcement_id, update_data):
         """Update announcement"""
-        from bson import ObjectId
-        update_data['updated_at'] = datetime.utcnow()
-        result = self.collection.update_one(
-            {'_id': ObjectId(announcement_id)},
-            {'$set': update_data}
-        )
-        return result.modified_count > 0
+        try:
+            update_data['updated_at'] = datetime.utcnow()
+            result = self.collection.update_one(
+                {'_id': ObjectId(announcement_id)},
+                {'$set': update_data}
+            )
+            return result.modified_count > 0
+        except (InvalidId, TypeError):
+            return False
     
     def delete_announcement(self, announcement_id):
         """Soft delete an announcement"""
-        from bson import ObjectId
-        result = self.collection.update_one(
-            {'_id': ObjectId(announcement_id)},
-            {'$set': {'status': 'inactive', 'updated_at': datetime.utcnow()}}
-        )
-        return result.modified_count > 0
+        try:
+            result = self.collection.update_one(
+                {'_id': ObjectId(announcement_id)},
+                {'$set': {'status': 'inactive', 'updated_at': datetime.utcnow()}}
+            )
+            return result.modified_count > 0
+        except (InvalidId, TypeError):
+            return False
     
     def get_recent_announcements(self, limit=5):
         """Get recent announcements"""

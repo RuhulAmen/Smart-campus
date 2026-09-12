@@ -1,9 +1,18 @@
+import os
 from datetime import datetime
+from bson import ObjectId
+from bson.errors import InvalidId
 
 class Issue:
     def __init__(self, mongo):
         self.mongo = mongo
-        self.collection = self.mongo.cx['smart_campus']['issues']
+        db_name = os.getenv('MONGO_DB_NAME', 'smart_campus')
+        if hasattr(mongo, 'db') and mongo.db is not None:
+            self.collection = mongo.db['issues']
+        elif hasattr(mongo, 'cx') and mongo.cx is not None:
+            self.collection = mongo.cx[db_name]['issues']
+        else:
+            self.collection = mongo['issues']
 
     def create_issue(self, facility, title, description, reporter_name, reporter_email):
         """Create a new issue report"""
@@ -28,17 +37,21 @@ class Issue:
     
     def get_issue_by_id(self, issue_id):
         """Get issue by ID"""
-        from bson import ObjectId
-        return self.collection.find_one({'_id': ObjectId(issue_id)})
+        try:
+            return self.collection.find_one({'_id': ObjectId(issue_id)})
+        except (InvalidId, TypeError):
+            return None
     
     def update_issue_status(self, issue_id, status):
         """Update issue status"""
-        from bson import ObjectId
-        result = self.collection.update_one(
-            {'_id': ObjectId(issue_id)},
-            {'$set': {'status': status, 'updated_at': datetime.utcnow()}}
-        )
-        return result.modified_count > 0
+        try:
+            result = self.collection.update_one(
+                {'_id': ObjectId(issue_id)},
+                {'$set': {'status': status, 'updated_at': datetime.utcnow()}}
+            )
+            return result.modified_count > 0
+        except (InvalidId, TypeError):
+            return False
     
     def get_issues_by_facility(self, facility):
         """Get issues for a specific facility"""

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
@@ -20,8 +20,14 @@ app.config['MONGO_URI'] = os.getenv('MONGO_URI', 'mongodb://localhost:27017/smar
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['JWT_EXPIRATION_HOURS'] = int(os.getenv('JWT_EXPIRATION_HOURS', '24'))
 
-# Initialize MongoDB
-app.mongo = PyMongo(app)
+# Initialize MongoDB with fallback for development if DNS/SRV fails
+try:
+    app.mongo = PyMongo(app)
+except Exception as e:
+    fallback_uri = 'mongodb://localhost:27017/smart_campus'
+    print(f"⚠️ MongoDB connection failed with configured MONGO_URI ({e}). Falling back to local MongoDB: {fallback_uri}")
+    app.config['MONGO_URI'] = fallback_uri
+    app.mongo = PyMongo(app)
 
 # Absolute path to the frontend directory (independent of the working directory)
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
@@ -39,18 +45,22 @@ _data_initialized = False
 
 @app.before_request
 def initialize_data():
-    """Initialize default facilities on the first request only."""
+    """Initialize default facilities on the first API request only."""
     global _data_initialized
     if _data_initialized:
         return
+
+    # Don't hold up static file requests (HTML, CSS, JS)
+    if not request.path.startswith('/api'):
+        return
+
+    _data_initialized = True  # Avoid blocking repeated subsequent requests if DB is offline
     try:
         facility_model = Facility(app.mongo)
         facility_model.initialize_default_facilities()
-        _data_initialized = True
         print("✅ Default facilities initialized")
     except Exception as e:
-        # DB not reachable yet (e.g. Mongo still starting); retry on the next request
-        print(f"⚠️ Error initializing data: {e}")
+        print(f"⚠️ Could not initialize default facilities (DB might be offline): {e}")
 
 
 # Serve frontend files

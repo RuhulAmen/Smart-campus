@@ -61,7 +61,7 @@ def get_announcements_by_priority(priority):
 def create_announcement(current_user):
     """Create announcement (Admin only)"""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         
         required_fields = ['title', 'description', 'priority', 'category']
         if not all(field in data for field in required_fields):
@@ -93,7 +93,7 @@ def create_announcement(current_user):
 def update_announcement(current_user, announcement_id):
     """Update announcement (Admin only)"""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         announcement_model = Announcement(announcements_bp.mongo)
         
         # Check if announcement exists

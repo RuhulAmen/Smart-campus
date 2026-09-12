@@ -72,7 +72,7 @@
 
                 if (facilities && facilities.length > 0) {
                     facilitiesList.innerHTML = facilities.map(f =>
-                        `<li>${f.name}</li>`
+                        `<li>${escapeHtml(f.name)}</li>`
                     ).join('');
                 } else {
                     facilitiesList.innerHTML = '<li>No facilities available</li>';

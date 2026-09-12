@@ -89,12 +89,12 @@
                     return `
                         <div class="facility-detail-card">
                             <div class="facility-detail-top">
-                                <h3>${f.name}</h3>
-                                <span class="status-badge ${statusClass}">${statusLabel}</span>
+                                <h3>${escapeHtml(f.name)}</h3>
+                                <span class="status-badge ${statusClass}">${escapeHtml(statusLabel)}</span>
                             </div>
-                            <div class="facility-location">📍 ${f.location || 'Location not specified'}</div>
+                            <div class="facility-location">📍 ${escapeHtml(f.location || 'Location not specified')}</div>
                             <p>${statusMessage}</p>
-                            ${f.description ? `<p style="font-size: 0.85rem; color: var(--text-muted);">${f.description}</p>` : ''}
+                            ${f.description ? `<p style="font-size: 0.85rem; color: var(--text-muted);">${escapeHtml(f.description)}</p>` : ''}
                         </div>
                     `;
                 }).join('');

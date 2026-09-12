@@ -15,8 +15,12 @@ def _is_valid_email(email):
 
 def _public_user(user):
     """Remove sensitive fields and stringify ObjectId for API responses"""
+    if not user:
+        return None
+    user = dict(user)
     user.pop('password', None)
-    user['_id'] = str(user['_id'])
+    if '_id' in user:
+        user['_id'] = str(user['_id'])
     return user
 
 
@@ -98,13 +102,9 @@ def login():
             return jsonify({'error': 'Email and password required'}), 400
 
         user_model = User(auth_bp.mongo)
-        user = user_model.find_by_email(data['email'])
+        user = user_model.verify_password(data['email'], data['password'])
 
         if not user:
-            return jsonify({'error': 'Invalid credentials'}), 401
-
-        # Verify password
-        if not bcrypt.checkpw(str(data['password']).encode('utf-8'), user['password']):
             return jsonify({'error': 'Invalid credentials'}), 401
 
         # Generate token
@@ -151,6 +151,8 @@ def get_profile(current_user):
     try:
         user_model = User(auth_bp.mongo)
         user = user_model.find_by_id(current_user['_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
         return jsonify({'user': _public_user(user)}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

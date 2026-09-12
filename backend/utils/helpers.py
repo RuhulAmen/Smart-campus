@@ -55,7 +55,7 @@ def token_required(f):
         user['_id'] = str(user['_id'])
         request.current_user = user
         
-        return f(*args, **kwargs)
+        return f(user, *args, **kwargs)
     
     return decorated
 
@@ -63,10 +63,14 @@ def admin_required(f):
     """Decorator to require admin role"""
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not hasattr(request, 'current_user'):
+        current_user = getattr(request, 'current_user', None)
+        if not current_user and args and isinstance(args[0], dict) and 'role' in args[0]:
+            current_user = args[0]
+
+        if not current_user:
             return jsonify({'error': 'Authentication required'}), 401
         
-        if request.current_user.get('role') != 'admin':
+        if current_user.get('role') != 'admin':
             return jsonify({'error': 'Admin privileges required'}), 403
         
         return f(*args, **kwargs)

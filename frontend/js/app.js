@@ -28,10 +28,17 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
 
     try {
         const response = await fetch(url, options);
-        const result = await response.json();
+        let result;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            result = await response.json();
+        } else {
+            const text = await response.text();
+            result = { error: text || `HTTP ${response.status}: ${response.statusText}` };
+        }
 
         if (!response.ok) {
-            throw new Error(result.error || 'Request failed');
+            throw new Error(result.error || `Request failed with status ${response.status}`);
         }
 
         return result;
@@ -84,8 +91,13 @@ function logout() {
 }
 
 function getCurrentUser() {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    try {
+        const user = localStorage.getItem('user');
+        return user ? JSON.parse(user) : null;
+    } catch (e) {
+        console.error('Error parsing current user from localStorage:', e);
+        return null;
+    }
 }
 
 function isLoggedIn() {
@@ -178,14 +190,7 @@ async function deleteAnnouncement(announcementId) {
 
 // Issue Functions
 async function reportIssue(issueData) {
-    try {
-        const result = await apiRequest('/issues', 'POST', issueData);
-        showToast('✅ Issue reported successfully!', 'success');
-        return result;
-    } catch (error) {
-        showToast(error.message, 'error');
-        return null;
-    }
+    return await apiRequest('/issues', 'POST', issueData);
 }
 
 async function getIssues() {

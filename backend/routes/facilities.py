@@ -40,7 +40,7 @@ def get_facility(facility_id):
 def create_facility(current_user):
     """Create a new facility (Admin only)"""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         
         required_fields = ['name', 'location', 'description']
         if not all(field in data for field in required_fields):
@@ -71,7 +71,7 @@ def create_facility(current_user):
 def update_facility(current_user, facility_id):
     """Update facility (Admin only)"""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         facility_model = Facility(facilities_bp.mongo)
         
         # Check if facility exists
@@ -108,7 +108,7 @@ def update_facility(current_user, facility_id):
 def update_facility_status(current_user, facility_id):
     """Update facility status (Admin only)"""
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         
         if not data.get('status'):
             return jsonify({'error': 'Status is required'}), 400

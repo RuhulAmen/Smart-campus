@@ -117,13 +117,13 @@
                 return `
                     <div class="announcement-card ${priorityClass}">
                         <div class="card-header">
-                            <h3>${ann.title}</h3>
-                            <span class="priority-badge ${badgeClass}">${ann.priority.toUpperCase()}</span>
+                            <h3>${escapeHtml(ann.title)}</h3>
+                            <span class="priority-badge ${badgeClass}">${escapeHtml((ann.priority || 'medium').toUpperCase())}</span>
                         </div>
-                        <p class="card-description">${ann.description}</p>
+                        <p class="card-description">${escapeHtml(ann.description)}</p>
                         <div class="card-footer">
                             <span class="date">📅 ${date}</span>
-                            <span class="category">${ann.category || 'General'}</span>
+                            <span class="category">${escapeHtml(ann.category || 'General')}</span>
                         </div>
                     </div>
                 `;
